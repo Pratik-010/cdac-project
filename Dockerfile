@@ -1,5 +1,6 @@
-FROM php:7.0-apache
-WORKDIR /src 
+FROM python
+RUN pip install flask
+WORKDIR /src
 COPY . .
-EXPOSE 80
-
+EXPOSE 4000
+CMD python application.py
