@@ -1,135 +1,194 @@
-<?php
-session_start();
-include('includes/config.php');
-error_reporting(0);
-if(strlen($_SESSION['login'])==0)
-    {   
-header('location:index.php');
-}
-else{
-
-if(isset($_POST['submit']))
-{
-$studentname=$_POST['studentname'];
-$photo=$_FILES["photo"]["name"];
-$cgpa=$_POST['cgpa'];
-move_uploaded_file($_FILES["photo"]["tmp_name"],"studentphoto/".$_FILES["photo"]["name"]);
-$ret=mysqli_query($con,"update students set studentName='$studentname',studentPhoto='$photo',cgpa='$cgpa'  where StudentRegno='".$_SESSION['login']."'");
-if($ret)
-{
-echo '<script>alert("Student Record updated Successfully !!")</script>';
-echo '<script>window.location.href=my-profile.php</script>';    
-}else{
-echo '<script>alert("Something went wrong . Please try again.!")</script>';
-echo '<script>window.location.href=my-profile.php</script>';    
-}
-}
-?>
-
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Student Profile</title>
-    <link href="assets/css/bootstrap.css" rel="stylesheet" />
-    <link href="assets/css/font-awesome.css" rel="stylesheet" />
-    <link href="assets/css/style.css" rel="stylesheet" />
-</head>
-
-<body>
-<?php include('includes/header.php');?>
-    <!-- LOGO HEADER END-->
-<?php if($_SESSION['login']!="")
-{
- include('includes/menubar.php');
-}
- ?>
-    <!-- MENU SECTION END-->
-    <div class="content-wrapper">
-        <div class="container">
-              <div class="row">
-                    <div class="col-md-12">
-                        <h1 class="page-head-line">Student Registration  </h1>
-                    </div>
-                </div>
-                <div class="row" >
-                  <div class="col-md-3"></div>
-                    <div class="col-md-6">
-                        <div class="panel panel-default">
-                        <div class="panel-heading">
-                          Student Registration
-                        </div>
-<font color="green" align="center"><?php echo htmlentities($_SESSION['msg']);?><?php echo htmlentities($_SESSION['msg']="");?></font>
-<?php $sql=mysqli_query($con,"select * from students where StudentRegno='".$_SESSION['login']."'");
-$cnt=1;
-while($row=mysqli_fetch_array($sql))
-{ ?>
-
-                        <div class="panel-body">
-                       <form name="dept" method="post" enctype="multipart/form-data">
-   <div class="form-group">
-    <label for="studentname">Student Name  </label>
-    <input type="text" class="form-control" id="studentname" name="studentname" value="<?php echo htmlentities($row['studentName']);?>"  />
-  </div>
-
- <div class="form-group">
-    <label for="studentregno">Student Reg No   </label>
-    <input type="text" class="form-control" id="studentregno" name="studentregno" value="<?php echo htmlentities($row['StudentRegno']);?>"  placeholder="Student Reg no" readonly />
-    
-  </div>
-
-
-
-<div class="form-group">
-    <label for="Pincode">Pincode  </label>
-    <input type="text" class="form-control" id="Pincode" name="Pincode" readonly value="<?php echo htmlentities($row['pincode']);?>" required />
-  </div>   
-
-<div class="form-group">
-    <label for="CGPA">CGPA  </label>
-    <input type="text" class="form-control" id="cgpa" name="cgpa"  value="<?php echo htmlentities($row['cgpa']);?>" required />
-  </div>  
-
-
-<div class="form-group">
-    <label for="Pincode">Student Photo  </label>
-   <?php if($row['studentPhoto']==""){ ?>
-   <img src="studentphoto/noimage.png" width="200" height="200"><?php } else {?>
-   <img src="studentphoto/<?php echo htmlentities($row['studentPhoto']);?>" width="200" height="200">
-   <?php } ?>
-  </div>
-<div class="form-group">
-    <label for="Pincode">Upload New Photo  </label>
-    <input type="file" class="form-control" id="photo" name="photo"  value="<?php echo htmlentities($row['studentPhoto']);?>" />
-  </div>
-
-
-  <?php } ?>
-
- <button type="submit" name="submit" id="submit" class="btn btn-default">Update</button>
-</form>
-                            </div>
-                            </div>
-                    </div>
-                  
-                </div>
-
-            </div>
-
-
-
-
-
-        </div>
-    </div>
-  <?php include('includes/footer.php');?>
-    <script src="assets/js/jquery-1.11.1.js"></script>
-    <script src="assets/js/bootstrap.js"></script>
-
-
-</body>
-</html>
-<?php } ?>
+<! Doctype html>  
+<html lang="en">  
+<head>  
+  <meta charset="utf-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">  
+  <title> PHP Registration Form </title>  
+<style>  
+input[type=radio] { width:20px; }  
+input[type=checkbox]{ width:20px; }  
+* {  
+    padding: 0;  
+    margin: 0;  
+    box-sizing: border-box;  
+}  
+body {  
+    margin: 50px auto;  
+    text-align: center;  
+    width: 800px;  
+}  
+input[type=reset] {  
+  border: 3px solid;    
+  border-radius: 2px;    
+  color: ;    
+  display: block;    
+  font-size: 1em;    
+  font-weight: bold;    
+  margin: 1em auto;    
+  padding: 1em 4em;    
+ position: relative;    
+  text-transform: uppercase;    
+}    
+input[type=reset]::before   
+{    
+  background: #fff;    
+  content: '';    
+  position: absolute;    
+  z-index: -1;    
+}    
+input[type=reset]]:hover {    
+  color: #1A33FF;    
+}    
+input {  
+    border: 2px solid #ccc;  
+    font-size: 1rem;  
+    font-weight: 100;  
+    font-family: 'Lato';  
+    padding: 10px;  
+}  
+form {  
+    margin: 20px auto;  
+    padding: 20px;  
+    border: 5px solid #ccc;  
+    background: #8bb2eafa;  
+}  
+h1 {  
+    font-family: sans-serif;  
+  display: block;  
+  font-size: 2rem;  
+  font-weight: bold;  
+  text-align: center;  
+  letter-spacing: 3px;  
+  color: hotpink;  
+    text-transform: uppercase;  
+}  
+    input[type=submit] {    
+  border: 3px solid;    
+  border-radius: 2px;    
+  color: ;    
+  display: block;    
+  font-size: 1em;    
+  font-weight: bold;    
+  margin: 1em auto;    
+  padding: 1em 4em;    
+ position: relative;    
+  text-transform: uppercase;    
+}    
+input[type=submit]::before   
+{    
+  background: #fff;    
+  content: '';    
+  position: absolute;    
+  z-index: -1;    
+}    
+input[type=submit]:hover {    
+  color: #1A33FF;    
+}    
+</style>  
+</head>  
+<body>  
+<h1> PHP Registration Form Example </h1>  
+<form method="post" enctype="multipart/form-data" action =?#?>  
+<table>  
+ <tr>  
+    <td colspan="2"> <?php echo @$msg; ?> </td>  
+ </tr>  
+  <tr>  
+    <td width="159"> <b> Enter your Name </b> </td>  
+    <td width="218">  
+    <input type="text" placeholder="Enter name" name = "n"  pattern="[a-z A-Z]*" required /> </td>  
+  </tr>  
+  <tr>  
+    <td> <b> Enter your Email </b> </td>  
+    <td> <input type="email" name="e"/ placeholder= "Enter Email" > </td>  
+  </tr>  
+  <tr>  
+    <td> <b> Enter your Password </b> </td>  
+    <td> <input type="password" name="p"/ placeholder=" Enter Password" > </td>  
+  </tr>  
+  <tr>  
+    <td> <b> Enter your Address </b> </td>  
+    <td> <textarea name="add">  Enter Address </textarea> </td>  
+  </tr>  
+  <tr>  
+    <td> <b> Enter your Mobile Number </b> </td>  
+    <td> <input type="text" pattern="[0-9]*" name="m" / placeholder=" Enter number" > </td>  
+  </tr>  
+  <tr>  
+    <td height="23"> <b> Select your Gender </b> </td>  
+    <td>  
+    Male <input type="radio" name="g" value="m"/>  
+    Female <input type="radio" name="g" value="f"/>  
+    </td>  
+  </tr>  
+  <tr>  
+    <td> <b> Choose your Hobbies </b> </td>  
+    <td>  
+        Cricket <input type="checkbox" value="cricket" name="hobb[]"/>  
+        Singing <input type="checkbox" value="singing" name="hobb[]"/>  
+        Dancing <input type="checkbox" value="dancing" name="hobb[]"/>  
+    </td>  
+  </tr>  
+  <tr>  
+    <td> <b> Select your Profile Pic </b> </td>  
+    <td> <input type="file" name="pic"/> </td>  
+  </tr>  
+  <tr>  
+    <td> <b> Select your Date of Birth </b> </td>  
+    <td>  
+        <select name="mm">  
+            <option value=""> Month </option>  
+            <?php   
+            for($i=1;$i<=12;$i++)  
+            {  
+            echo "<option value ='$i'>".$i."</option>";  
+            }  
+            ?>  
+        </select>  
+        <select name="dd">  
+            <option value=""> Date </option>  
+            <?php   
+            for($i=1;$i<=31;$i++)  
+            {  
+            echo "<option value ='$i'>".$i."</option>";  
+            }  
+            ?>  
+        </select>  
+        <select name="yy">  
+            <option value=""> Year </option>  
+            <?php   
+            for($i=1900;$i<=2015;$i++)  
+            {  
+            echo "<option value ='$i'>".$i."</option>";  
+            }  
+            ?>  
+        </select>  
+    </td>  
+  </tr>  
+  <tr>  
+    <td colspan="2" align="center">  
+    <input type ="submit" name="save" value="Register"/>  
+    <input type="reset" value="Reset"/>  
+    </td>  
+  </tr>  
+</table>  
+</form>  
+</body>  
+</html>  
+<?php  
+extract($_POST);  
+if(isset($save))  
+{  
+$dob=$yy."-".$mm."--".$dd;  
+$h=implode(",",$hobb);  
+$img=$_FILES['pic']['name'];  
+if($return)  
+{  
+$msg="<font color='red'>".ucfirst($e)." already exists choose another email </font>";  
+}  
+else  
+{  
+$msg= "<font color='blue'> your data saved </font>";  
+}  
+}  
+?>  
