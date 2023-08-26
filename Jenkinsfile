@@ -27,15 +27,17 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 script {
-                    timeout(time: 1, unit: 'Minute') {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                        }  
-                    } 
+                    def qgStatus = waitForQualityGate()
+                    echo "Quality Gate Status: ${qgStatus}"
+
+                    if (qgStatus != 'OK') {
+                        currentBuild.result = 'FAILURE'
+                        error "Pipeline aborted due to quality gate failure: ${qgStatus}"
+                    }
                 }
             }
         }
+
         stage('Docker Build') {
             steps {
                 sh 'docker image rm --force pratiek10/project-pipeline'
