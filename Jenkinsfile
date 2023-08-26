@@ -24,12 +24,18 @@ pipeline {
                 -Dsonar.projectKey=project-pipeline '''
             }
         }
-        stage ('Quality-Report-Check..?') {
+        stage('Quality Gate') {
             steps {
-                input 'Have You Checked The Report, And Do You Want To Continue...?'
+                script {
+                    timeout(time: 1, unit: 'Minute') {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        }  
+                    } 
+                }
             }
         }
-
         stage('Docker Build') {
             steps {
                 sh 'docker image rm --force pratiek10/project-pipeline'
