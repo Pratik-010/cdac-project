@@ -24,20 +24,48 @@ pipeline {
                 -Dsonar.projectKey=project-pipeline '''
             }
         }
+        // stage('Quality Gate') {
+        //     steps {
+        //         script {
+        //             def qgStatus = waitForQualityGate()
+        //             echo "Quality Gate Status: ${qgStatus}"
+
+        //             if (qgStatus != 'OK') {
+        //                 currentBuild.result = 'FAILURE'
+        //                 error "Pipeline aborted due to quality gate failure: ${qgStatus}"
+        //             }
+        //         }
+        //     }
+        // }
+        //  stage('SonarQube Analysis') {
+        //     steps {
+        //         script {
+        //             def scannerHome = tool name: 'SonarQube Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+        //             withSonarQubeEnv('SonarQube Server') {
+        //                 sh "${scannerHome}/bin/sonar-scanner"
+        //             }
+        //         }
+        //     }
+        // }
+        
         stage('Quality Gate') {
             steps {
                 script {
-                    def qgStatus = waitForQualityGate()
-                    echo "Quality Gate Status: ${qgStatus}"
-
-                    if (qgStatus != 'OK') {
-                        currentBuild.result = 'FAILURE'
-                        error "Pipeline aborted due to quality gate failure: ${qgStatus}"
+                    def qg = waitForQualityGate()
+                    
+                    if (qg.status != 'OK') {
+                        error "Quality Gate did not pass: ${qg.status}"
+                    }
+                    
+                    def qualityGateConditions = qg.conditions.findAll { it.level != 'OK' }
+                    def qualityGateStatus = qualityGateConditions.isEmpty() ? 'PASSED' : 'FAILED'
+                    
+                    if (qualityGateStatus == 'FAILED') {
+                        error "Quality Gate conditions not met: ${qualityGateConditions}"
                     }
                 }
             }
         }
-
         stage('Docker Build') {
             steps {
                 sh 'docker image rm --force pratiek10/project-pipeline'
